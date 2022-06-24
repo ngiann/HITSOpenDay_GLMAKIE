@@ -27,11 +27,14 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = tru
 
         end
         
+
         t0 = time()
 
         counter = 0
 
+
         while time() - t0 < Tmax
+
 
             counter += 1
             
@@ -54,16 +57,14 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = tru
                     val .= max.(val, 0.0)
 
                     @inbounds modifiedimage[index] = RGB{N0f8}(val[1], val[2], val[3])
-                   
-                    #@inbounds modifiedimage[index] = RGB{N0f8}(next[index].r,next[index].g,next[index].b)
-
+                  
                 end
 
                 imgobs[] = modifiedimage
 
             end
 
-            push!(imgarray, modifiedimage) # store image
+            push!(imgarray, next) # store webcam image
 
             sleep(0.001)
 
