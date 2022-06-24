@@ -1,7 +1,12 @@
 using VideoIO, GLMakie, Printf
+using ColorTypes, FixedPointNumbers, LinearAlgebra, Statistics
 
 function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = true)
     
+    VideoIO.DEFAULT_CAMERA_OPTIONS["video_size"] = "320x240"
+
+    VideoIO.DEFAULT_CAMERA_OPTIONS["framerate"] = 10
+
     cam = VideoIO.opencamera(dev)
 
     nextimage() = rotr90(read(cam))
@@ -30,18 +35,13 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = tru
 
         t0 = time()
 
-        counter = 0
-
 
         while time() - t0 < Tmax
 
-
-            counter += 1
             
             next = nextimage() # get next image from webcam
 
             local val = zeros(Float32, 3)
-
 
 
             @sync if seewebcam 
