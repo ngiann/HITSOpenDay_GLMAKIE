@@ -1,7 +1,7 @@
 using VideoIO, GLMakie, Statistics
 using DataStructures: CircularBuffer
 
-function test(Tmax = 10; dev = dev)
+function test(Tmax = 10; A = A, dev = dev)
     
     cam = VideoIO.opencamera(dev)
    
@@ -26,7 +26,7 @@ function test(Tmax = 10; dev = dev)
         
         local img = read(cam)
 
-        local μ = mean(img)
+        local μ = mean(map(x->A*x, img))
         
         return time()-t0, μ.b, μ.r, rotr90(img)
 

@@ -1,7 +1,9 @@
 using VideoIO, GLMakie, Printf
-using ColorTypes, FixedPointNumbers, LinearAlgebra, Statistics
+using ColorTypes, FixedPointNumbers, LinearAlgebra, Statistics, ColorSchemeTools
 
 function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = true)
+
+    display("v1")
     
     VideoIO.DEFAULT_CAMERA_OPTIONS["video_size"] = "320x240"
 
@@ -11,11 +13,10 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = tru
 
     nextimage() = rotr90(read(cam))
 
-    typeofimg = typeof(nextimage())
-
-    imgarray = Array{typeofimg}(undef, 0)
-
     modifiedimage = nextimage()
+
+    imgarray = Array{typeof(modifiedimage)}(undef, 0)
+
 
 
     try
@@ -44,17 +45,15 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = tru
             local val = zeros(Float32, 3)
 
 
-            @sync if seewebcam 
+            if seewebcam 
 
-                @async for index in eachindex(next)
+                for index in eachindex(next)
 
                     @inbounds local v = next[index]
         
                     mul!(val, A, [v.r;v.g;v.b])
                     
-                    val .= min.(val, 1.0)
-
-                    val .= max.(val, 0.0)
+                    val .= max.(min.(val, 1.0), 0.0)
 
                     @inbounds modifiedimage[index] = RGB{N0f8}(val[1], val[2], val[3])
                   
@@ -78,6 +77,21 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev, seewebcam = tru
 
     @printf("Recorded %d images\n", length(imgarray))
 
+    function convertrgbpixel(p)
+        
+        local v = max.(min.(A *  [p.r; p.g; p.b], 1.0), 0.0)
+        
+        RGB{N0f8}(v[1], v[2], v[3])
+
+    end
+
+    for img in imgarray
+        for i in eachindex(img)
+            @inbounds img[i] = convertrgbpixel(img[i])
+        end
+    end
+
     return imgarray
 
+    
 end
