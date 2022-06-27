@@ -1,0 +1,28 @@
+trim(x; startat=startat, endat=endat) = x[startat:endat]
+
+function getmeanfromindices(q, idx) 
+    
+    local a = mean(q[idx])
+    
+    [a.r;a.g;a.b]
+
+end
+
+
+function getmaskingreen(img; val = val)
+
+    findall([img[i].g >= val for i in eachindex(img)])
+
+end
+
+function getmaskinred(img; val = val)
+
+    findall([img[i].r >= val for i in eachindex(img)])
+
+end
+
+function getmaskinblue(img; val = val)
+
+    findall([img[i].b >= val for i in eachindex(img)])
+
+end
