@@ -19,7 +19,7 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
     imgarray = Array{typeof(modifiedimage)}(undef, 0)
 
 
-    μred, μgreen, μblue,  = zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0)
+    tsec, μred, μgreen, μblue,  = zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0)
 
     try
 
@@ -135,6 +135,8 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
 
             push!(μblue, blueval)
 
+            push!(tsec, t)
+
 
 
             push!(trajobsblue[], Point2f(t, blueval)) # update blue curve
@@ -187,7 +189,7 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
         verifyblue[index] = m.b
     end
 
-    return imgarray, μred, μgreen, μblue, verifyred, verifygreen, verifyblue
+    return imgarray, tsec, μred, μgreen, μblue, verifyred, verifygreen, verifyblue
 
     
 end
