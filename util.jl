@@ -30,3 +30,5 @@ end
 # ygreen = reduce(hcat, [getmeanfromindices(w, maskidx) for w in webcamimages[[40,60,70]]])
 
 # maskidx = getmaskinred(webcamimages[end]; val = 0.3)
+
+# delays = [2^(i/3)*0.46125 for i in -1:13]

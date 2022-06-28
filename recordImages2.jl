@@ -2,6 +2,17 @@ using VideoIO, GLMakie, Printf
 using ColorTypes, FixedPointNumbers, LinearAlgebra, Statistics, ColorSchemeTools
 using DataStructures: CircularBuffer
 
+function recordImages_nodarkframe(Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev = dev)
+
+    darkframe = Matrix{RGB{Float32}}(undef, 640, 360)
+
+    fill!(darkframe, RGB{Float32}(0.0, 0.0, 0.0))
+
+    recordImages(darkframe, Tmax, maskidx; A = A, dev = dev)
+
+end
+
+
 function recordImages(darkframe, Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev = dev)
 
     display("darkframe")
