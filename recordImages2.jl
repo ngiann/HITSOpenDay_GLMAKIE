@@ -2,9 +2,9 @@ using VideoIO, GLMakie, Printf
 using ColorTypes, FixedPointNumbers, LinearAlgebra, Statistics, ColorSchemeTools
 using DataStructures: CircularBuffer
 
-function recordImages(Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev = dev)
+function recordImages(darkframe, Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev = dev)
 
-    display("v1")
+    display("darkframe")
     
     VideoIO.DEFAULT_CAMERA_OPTIONS["video_size"] = "640x360"
 
@@ -14,9 +14,9 @@ function recordImages(Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev
 
     nextimage() = rotr90(read(cam))
 
-    modifiedimage = Matrix{RGB{N0f8}}(undef, 640, 360)
+    modifiedimage = Matrix{RGB{Float32}}(undef, 640, 360)
 
-    fill!(modifiedimage, RGB{N0f8}(0.0, 0.0, 0.0))
+    fill!(modifiedimage, RGB{Float32}(0.0, 0.0, 0.0))
 
     imgarray = Array{typeof(modifiedimage)}(undef, 0)
 
@@ -113,7 +113,7 @@ function recordImages(Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev
 
             @sync @async for index in maskidx#eachindex(next)
 
-                @inbounds local v = next[index]
+                @inbounds local v = next[index] - darkframe[index]
     
                 mul!(val, A, [v.r;v.g;v.b])
                 
@@ -150,7 +150,7 @@ function recordImages(Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev
             trajobsgreen[] = trajobsgreen[]   # meaningless line to force update
 
 
-            push!(imgarray, next) # store webcam image
+            push!(imgarray, next-darkframe) # store webcam image
 
             sleep(0.001)
 
