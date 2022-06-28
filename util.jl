@@ -26,3 +26,5 @@ function getmaskinblue(img; val = val)
     findall([img[i].b >= val for i in eachindex(img)])
 
 end
+
+# ygreen = reduce(hcat, [getmeanfromindices(w, maskidx) for w in webcamimages[[40,60,70]]])

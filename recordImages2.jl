@@ -2,11 +2,11 @@ using VideoIO, GLMakie, Printf
 using ColorTypes, FixedPointNumbers, LinearAlgebra, Statistics, ColorSchemeTools
 using DataStructures: CircularBuffer
 
-function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
+function recordImages(Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev = dev)
 
     display("v1")
     
-    VideoIO.DEFAULT_CAMERA_OPTIONS["video_size"] = "320x240"
+    VideoIO.DEFAULT_CAMERA_OPTIONS["video_size"] = "640x360"
 
     VideoIO.DEFAULT_CAMERA_OPTIONS["framerate"] = 10
 
@@ -14,12 +14,14 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
 
     nextimage() = rotr90(read(cam))
 
-    modifiedimage = nextimage()
+    modifiedimage = Matrix{RGB{N0f8}}(undef, 640, 360)
+
+    fill!(modifiedimage, RGB{N0f8}(0.0, 0.0, 0.0))
 
     imgarray = Array{typeof(modifiedimage)}(undef, 0)
 
 
-    tsec, μred, μgreen, μblue,  = zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0)
+    tsec, μred, μgreen, μblue = zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0), zeros(Float32, 0)
 
     try
 
@@ -109,7 +111,7 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
 
             local μ = zeros(Float32, 3)
 
-            for index in eachindex(next)
+            @sync @async for index in maskidx#eachindex(next)
 
                 @inbounds local v = next[index]
     
@@ -125,7 +127,7 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
 
             imgobs[] = modifiedimage
 
-            μ ./= length(next)
+            μ ./= length(maskidx)
 
             redval, greenval, blueval = μ[1], μ[2], μ[3]
 
@@ -162,34 +164,20 @@ function recordImages(Tmax = 10; A = Matrix(I, 3, 3), dev = dev)
 
     @printf("Recorded %d images\n", length(imgarray))
 
-    function convertrgbpixel(p)
-        
-        local v = max.(min.(A *  [p.r; p.g; p.b], 1.0), 0.0)
-        
-        RGB{N0f8}(v[1], v[2], v[3])
+    #### KEEP COMMENTED OUT CODE BELOW ####
 
-    end
+    # # verify that we have calculated mean values of CORRECTED image properly
+    # verifymean  = zeros(3, length(imgarray))
 
-    for img in imgarray
-        for i in eachindex(img)
-            @inbounds img[i] = convertrgbpixel(img[i])
-        end
-    end
+    # convertrgbpixel(p) = max.(min.(A *  [p.r; p.g; p.b], 1.0), 0.0)
 
+    # @inbounds for (indeximg, img) in enumerate(imgarray)
+    #     for pixel in img
+    #         verifymean[:,indeximg] += convertrgbpixel(pixel) / length(img)
+    #     end
+    # end
 
-    # verify that we have calculated mean values of CORRECTED image properly
-    verifyred  = zeros(length(imgarray))
-    verifygreen = zeros(length(imgarray))
-    verifyblue = zeros(length(imgarray))
-
-    for (index, img) in enumerate(imgarray)
-        local m = mean(img)
-        verifyred[index]  = m.r
-        verifygreen[index]  = m.g
-        verifyblue[index] = m.b
-    end
-
-    return imgarray, tsec, μred, μgreen, μblue, verifyred, verifygreen, verifyblue
+    return imgarray, tsec, μred, μgreen, μblue#, verifymean
 
     
 end
