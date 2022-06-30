@@ -15,7 +15,7 @@ end
 
 function recordImages(darkframe, Tmax = 10, maskidx = 1:(640*360); A = Matrix(I, 3, 3), dev = dev)
 
-    display("darkframe")
+    # display("darkframe")
     
     VideoIO.DEFAULT_CAMERA_OPTIONS["video_size"] = "640x360"
 
