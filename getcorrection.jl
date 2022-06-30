@@ -1,7 +1,12 @@
 using Optim
 
-function getcorrection(xred, xgreen, xblue, yred, ygreen, yblue)
+function getcorrection(yred, ygreen, yblue)
 
+    xred   = [1 1 1; 0 0 0.0; 0 0 0]
+    
+    xgreen = [0.0 0 0;1 1 1; 0 0 0]
+    
+    xblue  = [0.0 0 0; 0 0 0; 1 1 1]
 
     function objective(p)
 
